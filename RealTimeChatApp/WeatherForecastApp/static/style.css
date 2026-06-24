@@ -1,0 +1,959 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+
+    min-height:100vh;
+
+    background:
+    linear-gradient(
+        rgba(5,15,40,.70),
+        rgba(5,15,40,.85)
+    ),
+
+    url("https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80");
+
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
+
+    color:white;
+
+    overflow-x:hidden;
+}
+
+.background-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:
+    radial-gradient(
+        circle at top,
+        rgba(0,150,255,.15),
+        transparent 40%
+    );
+
+    z-index:-1;
+}
+
+.container{
+
+    width:95%;
+
+    max-width:1400px;
+
+    margin:25px auto;
+
+    padding:30px;
+
+    background:
+    rgba(15,25,45,.35);
+
+    backdrop-filter:blur(18px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:30px;
+
+    box-shadow:
+    0 10px 40px rgba(0,0,0,.40);
+}
+
+h1{
+
+    text-align:center;
+
+    font-size:3rem;
+
+    margin-bottom:10px;
+}
+
+#live-clock{
+
+    text-align:center;
+
+    font-size:1.5rem;
+
+    color:#93c5fd;
+
+    margin-bottom:10px;
+}
+
+.date{
+
+    text-align:center;
+
+    opacity:.85;
+
+    margin-bottom:20px;
+}
+
+#theme-btn{
+
+    display:block;
+
+    margin:auto;
+
+    padding:12px 24px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#2563eb;
+
+    color:white;
+
+    cursor:pointer;
+
+    margin-bottom:20px;
+}
+
+.search-box{
+
+    display:flex;
+
+    gap:12px;
+
+    margin-bottom:15px;
+}
+
+.search-box input{
+
+    flex:1;
+
+    padding:18px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:
+    rgba(255,255,255,.08);
+
+    color:white;
+
+    outline:none;
+}
+
+.search-box button{
+
+    padding:18px 25px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#2563eb;
+
+    color:white;
+
+    cursor:pointer;
+}
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.action-buttons{
+
+    display:flex;
+
+    gap:12px;
+
+    margin-bottom:20px;
+}
+
+.voice-btn,
+.location-btn{
+
+    flex:1;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:16px;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-weight:600;
+
+    transition:.3s;
+}
+
+.voice-btn{
+
+    background:#dc2626;
+}
+
+.location-btn{
+
+    background:#059669;
+}
+
+.voice-btn:hover,
+.location-btn:hover{
+
+    transform:translateY(-3px);
+}
+
+
+/* =========================
+   HISTORY CARD
+========================= */
+
+.history-card{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(12px);
+
+    padding:20px;
+
+    border-radius:20px;
+
+    margin-bottom:25px;
+}
+
+.history-card ul{
+
+    list-style:none;
+
+    margin-top:10px;
+}
+
+.history-card li{
+
+    padding:8px 0;
+}
+
+
+/* =========================
+   ALERT CARD
+========================= */
+
+.alerts-card{
+
+    background:
+    rgba(255,80,80,.12);
+
+    border:
+    1px solid rgba(255,80,80,.25);
+
+    backdrop-filter:blur(12px);
+
+    padding:20px;
+
+    border-radius:20px;
+
+    margin-bottom:25px;
+}
+
+.alerts-card h2{
+
+    margin-bottom:15px;
+}
+
+.alert-item{
+
+    padding:12px;
+
+    margin-bottom:10px;
+
+    border-radius:12px;
+
+    background:
+    rgba(255,255,255,.08);
+}
+
+
+/* =========================
+   DASHBOARD GRID
+========================= */
+
+.dashboard-grid{
+
+    display:grid;
+
+    grid-template-columns:
+    2fr 1fr;
+
+    gap:20px;
+
+    margin-bottom:25px;
+}
+
+
+/* =========================
+   WEATHER CARD
+========================= */
+
+.weather-card{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:25px;
+
+    text-align:center;
+}
+
+.weather-card img{
+
+    width:150px;
+}
+
+.weather-card h2{
+
+    font-size:2rem;
+
+    margin-bottom:10px;
+}
+
+.weather-card h1{
+
+    font-size:4rem;
+
+    color:#93c5fd;
+
+    margin:10px 0;
+}
+
+.weather-details{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(2,1fr);
+
+    gap:12px;
+
+    margin-top:25px;
+}
+
+.weather-details div{
+
+    background:
+    rgba(255,255,255,.06);
+
+    padding:15px;
+
+    border-radius:14px;
+}
+
+.weather-details span{
+
+    display:block;
+
+    margin-top:5px;
+
+    color:#60a5fa;
+
+    font-weight:bold;
+}
+
+
+/* =========================
+   AQI CARD
+========================= */
+
+.aqi-card{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:25px;
+
+    text-align:center;
+}
+
+.aqi-gauge{
+
+    display:flex;
+
+    justify-content:center;
+
+    margin-top:15px;
+}
+
+.aqi-circle{
+
+    width:140px;
+
+    height:140px;
+
+    border-radius:50%;
+
+    background:
+    linear-gradient(
+        135deg,
+        #10b981,
+        #22c55e
+    );
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:2rem;
+
+    font-weight:bold;
+
+    box-shadow:
+    0 0 25px rgba(34,197,94,.5);
+}
+/* =========================
+   MAP CARD
+========================= */
+
+.map-card{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:20px;
+
+    margin-bottom:25px;
+}
+
+#map{
+
+    width:100%;
+
+    height:260px;
+
+    border-radius:18px;
+
+    margin-top:15px;
+}
+
+
+/* =========================
+   WEATHER RADAR
+========================= */
+
+.radar-card{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:20px;
+
+    margin-bottom:25px;
+}
+
+.radar-card h2{
+
+    margin-bottom:15px;
+}
+
+.radar-placeholder{
+
+    height:220px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-radius:18px;
+
+    background:
+    rgba(255,255,255,.05);
+
+    color:#93c5fd;
+
+    font-size:1.2rem;
+
+    font-weight:600;
+}
+
+
+/* =========================
+   FORECAST SECTION
+========================= */
+
+.forecast-section{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:20px;
+
+    margin-bottom:25px;
+}
+
+.forecast-container{
+
+    display:flex;
+
+    gap:15px;
+
+    overflow-x:auto;
+
+    padding-bottom:10px;
+}
+
+.forecast-card{
+
+    min-width:140px;
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(10px);
+
+    border-radius:18px;
+
+    padding:18px;
+
+    text-align:center;
+
+    transition:.3s;
+}
+
+.forecast-card:hover{
+
+    transform:translateY(-8px);
+}
+
+.forecast-card img{
+
+    width:70px;
+}
+
+
+/* =========================
+   HOURLY FORECAST
+========================= */
+
+.hourly-section{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:20px;
+
+    margin-bottom:25px;
+}
+
+.hourly-container{
+
+    display:flex;
+
+    gap:15px;
+
+    overflow-x:auto;
+}
+
+.hour-card{
+
+    min-width:120px;
+
+    background:
+    rgba(255,255,255,.08);
+
+    border-radius:18px;
+
+    padding:15px;
+
+    text-align:center;
+
+    transition:.3s;
+}
+
+.hour-card:hover{
+
+    transform:translateY(-8px);
+}
+
+.hour-card img{
+
+    width:60px;
+}
+
+
+/* =========================
+   RAIN PROBABILITY
+========================= */
+
+.rain-section{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:20px;
+
+    margin-bottom:25px;
+}
+
+.rain-container{
+
+    display:flex;
+
+    gap:15px;
+
+    overflow-x:auto;
+}
+
+.rain-card{
+
+    min-width:120px;
+
+    background:
+    rgba(255,255,255,.08);
+
+    border-radius:18px;
+
+    padding:15px;
+
+    text-align:center;
+}
+/* =========================
+   TEMPERATURE CHART
+========================= */
+
+.chart-card{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:25px;
+
+    margin-bottom:25px;
+
+    height:450px;
+}
+
+.chart-card h2{
+
+    margin-bottom:20px;
+}
+
+#tempChart{
+
+    max-height:320px;
+}
+
+
+/* =========================
+   FAVORITE CITIES
+========================= */
+
+.favorite-card{
+
+    background:
+    rgba(255,255,255,.08);
+
+    backdrop-filter:blur(14px);
+
+    border:
+    1px solid rgba(255,255,255,.10);
+
+    border-radius:25px;
+
+    padding:25px;
+
+    margin-bottom:25px;
+}
+
+.favorite-buttons{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:12px;
+
+    margin-top:15px;
+}
+
+.favorite-buttons button{
+
+    padding:12px 18px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#2563eb;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.favorite-buttons button:hover{
+
+    transform:translateY(-4px);
+
+    background:#1d4ed8;
+}
+
+
+/* =========================
+   PDF BUTTON
+========================= */
+
+.pdf-section{
+
+    text-align:center;
+
+    margin-bottom:25px;
+}
+
+.pdf-btn{
+
+    padding:15px 25px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#7c3aed;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:1rem;
+
+    font-weight:bold;
+
+    transition:.3s;
+}
+
+.pdf-btn:hover{
+
+    background:#6d28d9;
+
+    transform:translateY(-4px);
+}
+
+
+/* =========================
+   INSTALL BUTTON
+========================= */
+
+.install-section{
+
+    text-align:center;
+
+    margin-bottom:25px;
+}
+
+.install-btn{
+
+    padding:15px 25px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#059669;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:1rem;
+
+    font-weight:bold;
+
+    transition:.3s;
+}
+
+.install-btn:hover{
+
+    background:#047857;
+
+    transform:translateY(-4px);
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+footer{
+
+    text-align:center;
+
+    padding:25px;
+
+    opacity:.85;
+}
+
+footer p{
+
+    margin:5px 0;
+}
+
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar{
+
+    width:8px;
+
+    height:8px;
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#60a5fa;
+
+    border-radius:20px;
+}
+
+::-webkit-scrollbar-track{
+
+    background:transparent;
+}
+
+
+/* =========================
+   DARK MODE
+========================= */
+
+.dark-mode{
+
+    background:
+    linear-gradient(
+        180deg,
+        #020617,
+        #0f172a,
+        #1e293b
+    );
+}
+
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+@media(max-width:1000px){
+
+    .dashboard-grid{
+
+        grid-template-columns:1fr;
+    }
+
+    .weather-details{
+
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:768px){
+
+    h1{
+
+        font-size:2.2rem;
+    }
+
+    .search-box{
+
+        flex-direction:column;
+    }
+
+    .action-buttons{
+
+        flex-direction:column;
+    }
+
+    .weather-card h1{
+
+        font-size:3rem;
+    }
+
+    .forecast-card,
+    .hour-card,
+    .rain-card{
+
+        min-width:110px;
+    }
+
+    #map{
+
+        height:220px;
+    }
+
+    .chart-card{
+
+        height:auto;
+    }
+}
