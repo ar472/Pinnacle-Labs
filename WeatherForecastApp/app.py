@@ -1,129 +1,306 @@
-from flask import Flask, render_template, request, redirect, flash, session
-from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO, emit
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request
+import requests
+from datetime import datetime
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'secret123'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+API_KEY = "2708868d46b1a0fe47b412a0298741cc"
 
-db = SQLAlchemy(app)
-socketio = SocketIO(app, async_mode='threading')
 
-# User Table
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(200))
-
-# Message Table
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100))
-    message = db.Column(db.Text)
-
-# Home
-@app.route('/')
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return redirect('/login')
 
-# Register
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+    weather = None
 
-    if request.method == 'POST':
+    forecast = []
 
-        username = request.form['username']
-        password = generate_password_hash(request.form['password'])
+    hourly_forecast = []
 
-        existing_user = User.query.filter_by(username=username).first()
+    rain_probability = []
 
-        if existing_user:
-            flash("Username already exists")
-            return redirect('/register')
+    alerts = []
 
-        user = User(
-            username=username,
-            password=password
+    aqi_data = None
+
+    error = None
+
+    current_time = datetime.now().strftime(
+        "%d %B %Y | %I:%M %p"
+    )
+
+    if request.method == "POST":
+
+        city = request.form.get("city")
+
+        weather_url = (
+            f"https://api.openweathermap.org/data/2.5/weather?"
+            f"q={city}&appid={API_KEY}&units=metric"
         )
 
-        db.session.add(user)
-        db.session.commit()
+        response = requests.get(
+            weather_url
+        )
 
-        flash("Registration Successful!")
-        return redirect('/login')
+        data = response.json()
 
-    return render_template('register.html')
+        if data.get("cod") != 200:
 
-# Login
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+            error = "City not found"
 
-    if request.method == 'POST':
+        else:
 
-        username = request.form['username']
-        password = request.form['password']
+            lat = data["coord"]["lat"]
 
-        user = User.query.filter_by(username=username).first()
+            lon = data["coord"]["lon"]
 
-        if user and check_password_hash(user.password, password):
+            weather = {
 
-            session['username'] = username
-            return redirect('/chat')
+                "city":
+                data["name"],
 
-        flash("Invalid Credentials")
+                "country":
+                data["sys"]["country"],
 
-    return render_template('login.html')
+                "temperature":
+                data["main"]["temp"],
 
-# Chat
-@app.route('/chat')
-def chat():
+                "feels_like":
+                data["main"]["feels_like"],
 
-    if 'username' not in session:
-        return redirect('/login')
+                "humidity":
+                data["main"]["humidity"],
 
-    messages = Message.query.all()
+                "pressure":
+                data["main"]["pressure"],
+
+                "visibility":
+                round(
+                    data["visibility"] / 1000,
+                    1
+                ),
+
+                "wind":
+                data["wind"]["speed"],
+
+                "description":
+                data["weather"][0]["description"].title(),
+
+                "icon":
+                data["weather"][0]["icon"],
+
+                "sunrise":
+                datetime.fromtimestamp(
+                    data["sys"]["sunrise"]
+                ).strftime("%I:%M %p"),
+
+                "sunset":
+                datetime.fromtimestamp(
+                    data["sys"]["sunset"]
+                ).strftime("%I:%M %p"),
+
+                "lat":
+                lat,
+
+                "lon":
+                lon
+            }
+                        # ======================
+            # AQI DATA
+            # ======================
+
+            aqi_url = (
+                f"http://api.openweathermap.org/data/2.5/air_pollution?"
+                f"lat={lat}&lon={lon}&appid={API_KEY}"
+            )
+
+            aqi_response = requests.get(
+                aqi_url
+            )
+
+            aqi_json = aqi_response.json()
+
+            if "list" in aqi_json:
+
+                aqi_value = (
+                    aqi_json["list"][0]
+                    ["main"]["aqi"]
+                )
+
+                aqi_status = {
+
+                    1: "Good 😊",
+                    2: "Fair 🙂",
+                    3: "Moderate 😐",
+                    4: "Poor 😷",
+                    5: "Very Poor ☠️"
+
+                }
+
+                aqi_data = {
+
+                    "value":
+                    aqi_value,
+
+                    "status":
+                    aqi_status.get(
+                        aqi_value
+                    )
+                }
+
+            # ======================
+            # FORECAST API
+            # ======================
+
+            forecast_url = (
+                f"https://api.openweathermap.org/data/2.5/forecast?"
+                f"q={city}&appid={API_KEY}&units=metric"
+            )
+
+            forecast_response = requests.get(
+                forecast_url
+            )
+
+            forecast_json = (
+                forecast_response.json()
+            )
+
+            added_dates = set()
+
+            for item in forecast_json["list"]:
+
+                date = datetime.strptime(
+
+                    item["dt_txt"]
+                    .split(" ")[0],
+
+                    "%Y-%m-%d"
+
+                ).strftime("%d %b")
+
+                if date not in added_dates:
+
+                    forecast.append({
+
+                        "date":
+                        date,
+
+                        "temp":
+                        round(
+                            item["main"]["temp"]
+                        ),
+
+                        "icon":
+                        item["weather"][0]
+                        ["icon"]
+
+                    })
+
+                    added_dates.add(
+                        date
+                    )
+
+                if len(forecast) == 5:
+
+                    break
+                            # ======================
+            # HOURLY FORECAST
+            # ======================
+
+            for item in forecast_json["list"][:8]:
+
+                hourly_forecast.append({
+
+                    "time":
+                    datetime.strptime(
+                        item["dt_txt"],
+                        "%Y-%m-%d %H:%M:%S"
+                    ).strftime("%I %p"),
+
+                    "temp":
+                    round(
+                        item["main"]["temp"]
+                    ),
+
+                    "icon":
+                    item["weather"][0]["icon"]
+
+                })
+
+                # ======================
+                # RAIN PROBABILITY
+                # ======================
+
+                rain_probability.append({
+
+                    "time":
+                    datetime.strptime(
+                        item["dt_txt"],
+                        "%Y-%m-%d %H:%M:%S"
+                    ).strftime("%I %p"),
+
+                    "chance":
+                    int(
+                        item.get(
+                            "pop",
+                            0
+                        ) * 100
+                    )
+
+                })
+
+            # ======================
+            # WEATHER ALERTS
+            # ======================
+
+            if weather["temperature"] > 40:
+
+                alerts.append(
+                    "🔥 Heat Wave Alert"
+                )
+
+            if weather["wind"] > 10:
+
+                alerts.append(
+                    "🌪 High Wind Alert"
+                )
+
+            if weather["humidity"] > 85:
+
+                alerts.append(
+                    "💧 High Humidity Alert"
+                )
+
+            if weather["visibility"] < 2:
+
+                alerts.append(
+                    "🌫 Low Visibility Alert"
+                )
 
     return render_template(
-        'chat.html',
-        username=session['username'],
-        messages=messages
+
+        "index.html",
+
+        weather=weather,
+
+        forecast=forecast,
+
+        hourly_forecast=hourly_forecast,
+
+        rain_probability=rain_probability,
+
+        alerts=alerts,
+
+        aqi_data=aqi_data,
+
+        current_time=current_time,
+
+        error=error
+
     )
 
-# Logout
-@app.route('/logout')
-def logout():
 
-    session.clear()
-    return redirect('/login')
+if __name__ == "__main__":
 
-# Socket Message Event
-@socketio.on('send_message')
-def handle_message(data):
-
-    msg = Message(
-        username=data['username'],
-        message=data['message']
-    )
-
-    db.session.add(msg)
-    db.session.commit()
-
-    emit(
-        'receive_message',
-        data,
-        broadcast=True
-    )
-
-# Run App
-if __name__ == '__main__':
-
-    with app.app_context():
-        db.create_all()
-
-    socketio.run(
-        app,
-        debug=True,
-        allow_unsafe_werkzeug=True
+    app.run(
+        debug=True
     )
