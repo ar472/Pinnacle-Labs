@@ -11,6 +11,8 @@ API_KEY = "2708868d46b1a0fe47b412a0298741cc"
 def home():
 
     weather = None
+    ai_advice = ""
+    clothing = ""
 
     forecast = []
 
@@ -103,22 +105,76 @@ lat,
                 "lon":
                 lon
             }
+            # ======================
+# AI WEATHER ADVICE
+# ======================
+
+temp = weather["temperature"]
+condition = weather["description"].lower()
+
+if temp >= 38:
+
+    ai_advice = "🥵 Extremely hot today. Stay hydrated, avoid direct sunlight and wear light cotton clothes."
+
+    clothing = "👕 Cotton T-Shirt • 🧢 Cap • 🕶 Sunglasses"
+
+elif temp >= 30:
+
+    ai_advice = "☀️ Warm weather. Carry a water bottle and sunscreen."
+
+    clothing = "👕 Half Sleeves • 🧢 Cap"
+
+elif temp >= 20:
+
+    ai_advice = "🌤 Pleasant weather. Perfect for outdoor activities."
+
+    clothing = "👕 Casual Wear"
+
+elif temp >= 10:
+
+    ai_advice = "🧥 Cool weather. Consider wearing a light jacket."
+
+    clothing = "🧥 Light Jacket"
+
+else:
+
+    ai_advice = "❄ Very cold outside. Wear warm clothes."
+
+    clothing = "🧥 Winter Jacket • 🧤 Gloves"
+
+if "rain" in condition:
+
+    ai_advice += " ☔ Don't forget an umbrella."
+
+    clothing += " ☔ Umbrella"
+
+if "snow" in condition:
+
+    ai_advice += " ❄ Roads may be slippery."
+
+    clothing += " 🥾 Boots"
+
+if weather["wind"] > 10:
+
+    ai_advice += " 💨 Strong winds expected."
+
+if weather["humidity"] > 80:
+
+    ai_advice += " 💧 High humidity today."
                         # ======================
             # AQI DATA
             # ======================
 
-            aqi_url = (
+aqi_url = (
                 f"http://api.openweathermap.org/data/2.5/air_pollution?"
                 f"lat={lat}&lon={lon}&appid={API_KEY}"
             )
-
-            aqi_response = requests.get(
+aqi_response = requests.get(
                 aqi_url
             )
+aqi_json = aqi_response.json()
 
-            aqi_json = aqi_response.json()
-
-            if "list" in aqi_json:
+if "list" in aqi_json:
 
                 aqi_value = (
                     aqi_json["list"][0]
@@ -150,22 +206,20 @@ lat,
             # FORECAST API
             # ======================
 
-            forecast_url = (
+forecast_url = (
                 f"https://api.openweathermap.org/data/2.5/forecast?"
                 f"q={city}&appid={API_KEY}&units=metric"
             )
 
-            forecast_response = requests.get(
+forecast_response = requests.get(
                 forecast_url
             )
-
-            forecast_json = (
+forecast_json = (
                 forecast_response.json()
             )
+added_dates = set()
 
-            added_dates = set()
-
-            for item in forecast_json["list"]:
+for item in forecast_json["list"]:
 
                 date = datetime.strptime(
 
@@ -205,7 +259,7 @@ lat,
             # HOURLY FORECAST
             # ======================
 
-            for item in forecast_json["list"][:8]:
+for item in forecast_json["list"][:8]:
 
                 hourly_forecast.append({
 
@@ -251,31 +305,31 @@ lat,
             # WEATHER ALERTS
             # ======================
 
-            if weather["temperature"] > 40:
+if weather["temperature"] > 40:
 
                 alerts.append(
                     "🔥 Heat Wave Alert"
                 )
 
-            if weather["wind"] > 10:
+if weather["wind"] > 10:
 
                 alerts.append(
                     "🌪 High Wind Alert"
                 )
 
-            if weather["humidity"] > 85:
+if weather["humidity"] > 85:
 
                 alerts.append(
                     "💧 High Humidity Alert"
                 )
 
-            if weather["visibility"] < 2:
+if weather["visibility"] < 2:
 
                 alerts.append(
                     "🌫 Low Visibility Alert"
                 )
 
-    return render_template(
+return render_template(
 
         "index.html",
 
@@ -290,6 +344,9 @@ lat,
         alerts=alerts,
 
         aqi_data=aqi_data,
+        ai_advice=ai_advice,
+
+clothing=clothing,
 
         current_time=current_time,
 
