@@ -1,773 +1,1007 @@
-// ==========================
+/* ==========================================================
+   Weather Forecast Pro V2.0
+   Developed by Arnav Mittal
+==========================================================*/
+
+
+// ==========================================
 // LIVE CLOCK
-// ==========================
+// ==========================================
 
-function updateClock() {
+function updateClock(){
 
-    const clock =
-        document.getElementById(
-            "live-clock"
-        );
+    const now=new Date();
 
-    if (!clock) return;
+    const options={
 
-    const now = new Date();
+        weekday:"long",
 
-    clock.innerHTML =
-        now.toLocaleTimeString();
+        day:"numeric",
+
+        month:"long",
+
+        year:"numeric"
+
+    };
+
+    const date=now.toLocaleDateString("en-IN",options);
+
+    const time=now.toLocaleTimeString();
+
+    const clock=document.getElementById("live-clock");
+
+    if(clock){
+
+        clock.innerHTML=
+        "🕒 "+date+" | "+time;
+
+    }
+
 }
 
-setInterval(
-    updateClock,
-    1000
-);
+setInterval(updateClock,1000);
 
 updateClock();
 
 
-// ==========================
+// ==========================================
 // DARK MODE
-// ==========================
+// ==========================================
 
-function toggleTheme() {
+function toggleTheme(){
 
-    document.body.classList.toggle(
-        "dark-mode"
-    );
+    document.body.classList.toggle("dark-mode");
 
-    const theme =
-        document.body.classList.contains(
-            "dark-mode"
-        )
-        ? "dark"
-        : "light";
+    let btn=document.getElementById("theme-btn");
 
-    localStorage.setItem(
-        "theme",
-        theme
-    );
+    if(document.body.classList.contains("dark-mode")){
 
-    const btn =
-        document.getElementById(
-            "theme-btn"
-        );
+        btn.innerHTML="☀ Light Mode";
 
-    if(btn){
+        localStorage.setItem("theme","dark");
 
-        btn.innerHTML =
-        theme === "dark"
-        ? "☀️ Light Mode"
-        : "🌙 Dark Mode";
     }
+
+    else{
+
+        btn.innerHTML="🌙 Dark Mode";
+
+        localStorage.setItem("theme","light");
+
+    }
+
 }
 
-window.addEventListener(
-    "load",
-    () => {
 
-        const savedTheme =
-            localStorage.getItem(
-                "theme"
-            );
+window.onload=function(){
 
-        if(savedTheme === "dark"){
+    if(localStorage.getItem("theme")=="dark"){
 
-            document.body.classList.add(
-                "dark-mode"
-            );
+        document.body.classList.add("dark-mode");
 
-            const btn =
-                document.getElementById(
-                    "theme-btn"
-                );
+        document.getElementById("theme-btn").innerHTML="☀ Light Mode";
 
-            if(btn){
-
-                btn.innerHTML =
-                    "☀️ Light Mode";
-            }
-        }
-    }
-);
-
-
-// ==========================
-// VOICE SEARCH
-// ==========================
-
-function startVoiceSearch(){
-
-    if(
-        !(
-            "webkitSpeechRecognition"
-            in window
-        )
-    ){
-
-        alert(
-            "Voice Search Not Supported"
-        );
-
-        return;
     }
 
-    const recognition =
-        new webkitSpeechRecognition();
-
-    recognition.lang = "en-IN";
-
-    recognition.start();
-
-    recognition.onresult =
-    function(event){
-
-        const city =
-            event.results[0][0]
-            .transcript;
-
-        document.getElementById(
-            "cityInput"
-        ).value = city;
-
-        document.querySelector(
-            "form"
-        ).submit();
-    };
 }
-// ==========================
+
+
+// ==========================================
 // SEARCH HISTORY
-// ==========================
+// ==========================================
 
 function saveHistory(city){
 
-    let history =
-        JSON.parse(
-            localStorage.getItem(
-                "weatherHistory"
-            )
-        ) || [];
+    let history=
 
-    history = history.filter(
-        item => item !== city
-    );
+    JSON.parse(localStorage.getItem("weatherHistory"))||[];
 
-    history.unshift(city);
+    if(!history.includes(city)){
 
-    history = history.slice(0,8);
+        history.unshift(city);
+
+    }
+
+    history=history.slice(0,6);
 
     localStorage.setItem(
+
         "weatherHistory",
+
         JSON.stringify(history)
+
     );
 
     showHistory();
+
 }
+
 
 function showHistory(){
 
-    const list =
-        document.getElementById(
-            "history-list"
-        );
+    let list=
+
+    document.getElementById("history-list");
 
     if(!list) return;
 
-    list.innerHTML = "";
+    list.innerHTML="";
 
-    const history =
-        JSON.parse(
-            localStorage.getItem(
-                "weatherHistory"
-            )
-        ) || [];
+    let history=
 
-    history.forEach(city => {
+    JSON.parse(localStorage.getItem("weatherHistory"))||[];
 
-        const li =
-            document.createElement("li");
+    history.forEach(city=>{
 
-        li.innerHTML =
-            "📍 " + city;
+        list.innerHTML+=`
 
-        li.style.cursor =
-            "pointer";
+        <li onclick="quickSearch('${city}')">
 
-        li.onclick = () => {
+        📍 ${city}
 
-            document.getElementById(
-                "cityInput"
-            ).value = city;
+        </li>
 
-            document.querySelector(
-                "form"
-            ).submit();
-        };
+        `;
 
-        list.appendChild(li);
     });
+
 }
 
 
-// ==========================
-// SAVE CURRENT CITY
-// ==========================
+// ==========================================
+// FORM SUBMIT
+// ==========================================
 
-window.addEventListener(
-    "load",
-    () => {
+const form=document.querySelector("form");
 
-        showHistory();
+if(form){
 
-        const cityHeading =
-            document.querySelector(
-                ".weather-card h2"
-            );
+form.addEventListener("submit",function(){
 
-        if(cityHeading){
+const city=document.getElementById("cityInput").value;
 
-            saveHistory(
-                cityHeading.innerText
-            );
-        }
-    }
-);
+saveHistory(city);
+
+});
+
+}
 
 
-// ==========================
+// ==========================================
 // QUICK SEARCH
-// ==========================
+// ==========================================
 
 function quickSearch(city){
 
-    document.getElementById(
-        "cityInput"
-    ).value = city;
+document.getElementById("cityInput").value=city;
 
-    document.querySelector(
-        "form"
-    ).submit();
+document.querySelector("form").submit();
+
 }
 
 
-// ==========================
-// FAVORITE CITIES STORAGE
-// ==========================
+showHistory();
+// ==========================================================
+// VOICE SEARCH
+// ==========================================================
+
+function startVoiceSearch(){
+
+    if(!('webkitSpeechRecognition' in window)){
+
+        alert("Voice Search is not supported in your browser.");
+
+        return;
+
+    }
+
+    const recognition=new webkitSpeechRecognition();
+
+    recognition.lang="en-IN";
+
+    recognition.interimResults=false;
+
+    recognition.maxAlternatives=1;
+
+    recognition.start();
+
+    recognition.onresult=function(event){
+
+        const city=event.results[0][0].transcript;
+
+        document.getElementById("cityInput").value=city;
+
+        document.querySelector("form").submit();
+
+    };
+
+    recognition.onerror=function(){
+
+        alert("Voice recognition failed.");
+
+    };
+
+}
+
+
+// ==========================================================
+// CURRENT LOCATION
+// ==========================================================
+
+function getLocation(){
+
+    if(navigator.geolocation){
+
+        navigator.geolocation.getCurrentPosition(
+
+            showPosition,
+
+            locationError
+
+        );
+
+    }
+
+    else{
+
+        alert("Geolocation not supported.");
+
+    }
+
+}
+
+
+function showPosition(position){
+
+    const lat=position.coords.latitude;
+
+    const lon=position.coords.longitude;
+
+    reverseGeocode(lat,lon);
+
+}
+
+
+function locationError(error){
+
+    switch(error.code){
+
+        case error.PERMISSION_DENIED:
+
+            alert("Location permission denied.");
+
+            break;
+
+        case error.POSITION_UNAVAILABLE:
+
+            alert("Location unavailable.");
+
+            break;
+
+        case error.TIMEOUT:
+
+            alert("Location request timed out.");
+
+            break;
+
+        default:
+
+            alert("Unable to fetch location.");
+
+    }
+
+}
+
+
+// ==========================================================
+// REVERSE GEOCODING
+// ==========================================================
+
+function reverseGeocode(lat,lon){
+
+    fetch(
+
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+
+    )
+
+    .then(response=>response.json())
+
+    .then(data=>{
+
+        let city=
+
+        data.address.city ||
+
+        data.address.town ||
+
+        data.address.village ||
+
+        data.address.state;
+
+        if(city){
+
+            document.getElementById("cityInput").value=city;
+
+            document.querySelector("form").submit();
+
+        }
+
+    })
+
+    .catch(()=>{
+
+        alert("Unable to detect city.");
+
+    });
+
+}
+
+
+// ==========================================================
+// AUTO FOCUS
+// ==========================================================
+
+window.addEventListener("load",()=>{
+
+    const input=document.getElementById("cityInput");
+
+    if(input){
+
+        input.focus();
+
+    }
+
+});
+
+
+// ==========================================================
+// ENTER KEY SEARCH
+// ==========================================================
+
+document.addEventListener("keydown",function(e){
+
+    if(e.key==="Enter"){
+
+        const active=document.activeElement;
+
+        if(active.id==="cityInput"){
+
+            document.querySelector("form").submit();
+
+        }
+
+    }
+
+});
+
+
+// ==========================================================
+// REFRESH BUTTON
+// ==========================================================
+
+function refreshWeather(){
+
+    location.reload();
+
+}
+// ==========================================================
+// TEMPERATURE CHART
+// ==========================================================
+
+window.addEventListener("load",()=>{
+
+    const canvas=document.getElementById("tempChart");
+
+    if(!canvas || typeof forecastTemps==="undefined") return;
+
+    new Chart(canvas,{
+
+        type:"line",
+
+        data:{
+
+            labels:forecastDates,
+
+            datasets:[{
+
+                label:"Temperature (°C)",
+
+                data:forecastTemps,
+
+                borderWidth:3,
+
+                tension:.4,
+
+                fill:true,
+
+                backgroundColor:"rgba(59,130,246,.20)",
+
+                borderColor:"#38bdf8",
+
+                pointRadius:5,
+
+                pointHoverRadius:8
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            plugins:{
+
+                legend:{
+
+                    labels:{
+
+                        color:"#ffffff"
+
+                    }
+
+                }
+
+            },
+
+            scales:{
+
+                x:{
+
+                    ticks:{
+
+                        color:"#ffffff"
+
+                    },
+
+                    grid:{
+
+                        color:"rgba(255,255,255,.10)"
+
+                    }
+
+                },
+
+                y:{
+
+                    ticks:{
+
+                        color:"#ffffff"
+
+                    },
+
+                    grid:{
+
+                        color:"rgba(255,255,255,.10)"
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+});
+
+
+// ==========================================================
+// WEATHER MAP
+// ==========================================================
+
+window.addEventListener("load",()=>{
+
+    if(typeof latitude==="undefined") return;
+
+    const mapDiv=document.getElementById("map");
+
+    if(!mapDiv) return;
+
+    const map=L.map("map").setView([latitude,longitude],10);
+
+    L.tileLayer(
+
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+        {
+
+            attribution:"© OpenStreetMap"
+
+        }
+
+    ).addTo(map);
+
+    L.marker([latitude,longitude])
+
+    .addTo(map)
+
+    .bindPopup("📍 Selected City")
+
+    .openPopup();
+
+});
+
+
+// ==========================================================
+// WEATHER BACKGROUND
+// ==========================================================
+
+window.addEventListener("load",()=>{
+
+    const bg=document.getElementById("weather-bg");
+
+    if(!bg) return;
+
+    const desc=document.querySelector(".weather-header p");
+
+    if(!desc) return;
+
+    const text=desc.innerText.toLowerCase();
+
+    document.body.classList.remove(
+
+        "sunny-bg",
+
+        "cloudy-bg",
+
+        "rainy-bg",
+
+        "snow-bg",
+
+        "night-bg",
+
+        "thunder-bg"
+
+    );
+
+    if(text.includes("rain")){
+
+        document.body.classList.add("rainy-bg");
+
+    }
+
+    else if(text.includes("cloud")){
+
+        document.body.classList.add("cloudy-bg");
+
+    }
+
+    else if(text.includes("snow")){
+
+        document.body.classList.add("snow-bg");
+
+    }
+
+    else if(text.includes("thunder")){
+
+        document.body.classList.add("thunder-bg");
+
+    }
+
+    else if(text.includes("clear")){
+
+        document.body.classList.add("sunny-bg");
+
+    }
+
+    else{
+
+        document.body.classList.add("night-bg");
+
+    }
+
+});
+
+
+// ==========================================================
+// LOADING EFFECT
+// ==========================================================
+
+window.addEventListener("load",()=>{
+
+    document.body.classList.add("loaded");
+
+});
+
+
+// ==========================================================
+// SCROLL TO TOP
+// ==========================================================
+
+const topBtn=document.createElement("button");
+
+topBtn.innerHTML="⬆";
+
+topBtn.id="topBtn";
+
+document.body.appendChild(topBtn);
+
+topBtn.style.position="fixed";
+
+topBtn.style.bottom="25px";
+
+topBtn.style.right="25px";
+
+topBtn.style.display="none";
+
+topBtn.style.padding="15px";
+
+topBtn.style.borderRadius="50%";
+
+topBtn.style.border="none";
+
+topBtn.style.cursor="pointer";
+
+topBtn.style.fontSize="20px";
+
+topBtn.style.zIndex="999";
+
+window.addEventListener("scroll",()=>{
+
+    if(window.scrollY>300){
+
+        topBtn.style.display="block";
+
+    }
+
+    else{
+
+        topBtn.style.display="none";
+
+    }
+
+});
+
+topBtn.onclick=()=>{
+
+    window.scrollTo({
+
+        top:0,
+
+        behavior:"smooth"
+
+    });
+
+};
+// ==========================================================
+// FAVORITE CITIES
+// ==========================================================
 
 function addFavorite(city){
 
     let favorites =
-        JSON.parse(
-            localStorage.getItem(
-                "favorites"
-            )
-        ) || [];
+        JSON.parse(localStorage.getItem("favoriteCities")) || [];
 
-    if(
-        !favorites.includes(city)
-    ){
+    if(!favorites.includes(city)){
 
         favorites.push(city);
-    }
 
-    localStorage.setItem(
-        "favorites",
-        JSON.stringify(favorites)
-    );
+        localStorage.setItem(
+            "favoriteCities",
+            JSON.stringify(favorites)
+        );
+
+        loadFavorites();
+    }
 }
 
 
-// ==========================
-// WEATHER ALERT POPUP
-// ==========================
+function loadFavorites(){
 
-window.addEventListener(
-    "load",
-    () => {
+    const container =
+        document.getElementById("favorite-list");
 
-        const alerts =
-            document.querySelectorAll(
-                ".alert-item"
-            );
+    if(!container) return;
 
-        if(
-            alerts.length > 0
-        ){
+    container.innerHTML="";
 
-            setTimeout(() => {
+    const favorites =
+        JSON.parse(localStorage.getItem("favoriteCities")) || [];
 
-                alert(
-                    "⚠ Weather Alert Available"
-                );
+    favorites.forEach(city=>{
 
-            },1000);
-        }
+        const btn=document.createElement("button");
+
+        btn.innerHTML="⭐ "+city;
+
+        btn.className="favorite-btn";
+
+        btn.onclick=function(){
+
+            quickSearch(city);
+
+        };
+
+        container.appendChild(btn);
+
+    });
+
+}
+
+window.addEventListener("load",loadFavorites);
+
+
+
+// ==========================================================
+// WEATHER NOTIFICATIONS
+// ==========================================================
+
+function weatherNotification(){
+
+    const temp=document.querySelector(".temperature-section h1");
+
+    if(!temp) return;
+
+    const value=parseInt(temp.innerText);
+
+    if(value>=40){
+
+        alert("🔥 Heat Wave Alert! Stay Hydrated.");
+
     }
-);
-// ==========================
-// GEOLOCATION
-// ==========================
 
-function getLocation(){
+    else if(value<=8){
 
-    if(
-        !navigator.geolocation
-    ){
+        alert("❄ Cold Weather Alert!");
 
-        alert(
-            "Geolocation Not Supported"
-        );
-
-        return;
     }
 
-    navigator.geolocation
-    .getCurrentPosition(
+}
 
-        function(position){
+window.addEventListener("load",weatherNotification);
 
-            const lat =
-                position.coords.latitude;
 
-            const lon =
-                position.coords.longitude;
 
-            alert(
-                "📍 Location Detected\n\nLatitude: "
-                + lat +
-                "\nLongitude: "
-                + lon
-            );
-        },
+// ==========================================================
+// DOWNLOAD REPORT
+// ==========================================================
 
-        function(){
+function downloadReport(){
 
-            alert(
-                "Location Access Denied"
-            );
-        }
-    );
+    window.print();
+
 }
 
 
-// ==========================
-// AQI ANIMATION
-// ==========================
 
-window.addEventListener(
-    "load",
-    () => {
+// ==========================================================
+// CARD ANIMATION
+// ==========================================================
 
-        const aqiCircle =
-            document.querySelector(
-                ".aqi-circle"
-            );
+const observer=new IntersectionObserver(
 
-        if(aqiCircle){
+(entries)=>{
 
-            aqiCircle.animate(
+entries.forEach(entry=>{
 
-                [
+if(entry.isIntersecting){
 
-                    {
-                        transform:
-                        "scale(.8)"
-                    },
+entry.target.classList.add("show-card");
 
-                    {
-                        transform:
-                        "scale(1)"
-                    }
+}
 
-                ],
+});
 
-                {
+},
 
-                    duration:1200,
+{
 
-                    iterations:1
-                }
-            );
-        }
-    }
+threshold:0.15
+
+}
+
 );
 
+document.querySelectorAll(
 
-// ==========================
-// TEMPERATURE CHART
-// ==========================
+".glass,.forecast-card,.hour-card,.highlight-card"
 
-window.addEventListener(
-    "load",
-    () => {
+).forEach(card=>{
 
-        const chartCanvas =
-            document.getElementById(
-                "tempChart"
-            );
+observer.observe(card);
 
-        if(
-            chartCanvas &&
-            typeof forecastTemps !==
-            "undefined"
-        ){
+});
 
-            new Chart(
 
-                chartCanvas,
 
-                {
+// ==========================================================
+// BUTTON RIPPLE EFFECT
+// ==========================================================
 
-                    type:"line",
+document.querySelectorAll("button").forEach(button=>{
 
-                    data:{
+button.addEventListener("click",function(e){
 
-                        labels:
-                        forecastDates,
+const ripple=document.createElement("span");
 
-                        datasets:[
+const rect=this.getBoundingClientRect();
 
-                            {
+const size=Math.max(rect.width,rect.height);
 
-                                label:
-                                "Temperature °C",
+ripple.style.width=size+"px";
 
-                                data:
-                                forecastTemps,
+ripple.style.height=size+"px";
 
-                                borderWidth:
-                                3,
+ripple.style.left=e.clientX-rect.left-size/2+"px";
 
-                                tension:
-                                0.4,
+ripple.style.top=e.clientY-rect.top-size/2+"px";
 
-                                fill:false
-                            }
-                        ]
-                    },
+ripple.className="ripple";
 
-                    options:{
+this.appendChild(ripple);
 
-                        responsive:true,
+setTimeout(()=>{
 
-                        maintainAspectRatio:false,
+ripple.remove();
 
-                        plugins:{
+},600);
 
-                            legend:{
+});
 
-                                labels:{
+});
 
-                                    color:
-                                    "white"
-                                }
-                            }
-                        },
 
-                        scales:{
 
-                            x:{
+// ==========================================================
+// WEATHER ICON ANIMATION
+// ==========================================================
 
-                                ticks:{
+const weatherIcon=document.querySelector(".weather-header img");
 
-                                    color:
-                                    "white"
-                                }
-                            },
+if(weatherIcon){
 
-                            y:{
+setInterval(()=>{
 
-                                ticks:{
+weatherIcon.style.transform="rotate(6deg)";
 
-                                    color:
-                                    "white"
-                                }
-                            }
-                        }
-                    }
-                }
-            );
-        }
+setTimeout(()=>{
+
+weatherIcon.style.transform="rotate(-6deg)";
+
+},250);
+
+setTimeout(()=>{
+
+weatherIcon.style.transform="rotate(0deg)";
+
+},500);
+
+},3500);
+
+}
+// ==========================================================
+// AUTO DAY / NIGHT THEME
+// ==========================================================
+
+(function () {
+
+    const hour = new Date().getHours();
+
+    if (hour >= 18 || hour <= 6) {
+
+        document.body.classList.add("dark-mode");
+
+        const btn = document.getElementById("theme-btn");
+
+        if (btn) btn.innerHTML = "☀ Light Mode";
+
     }
-);
+
+})();
 
 
-// ==========================
-// LEAFLET MAP
-// ==========================
+// ==========================================================
+// WEATHER ANIMATION
+// ==========================================================
 
-window.addEventListener(
-    "load",
-    () => {
 
-        if(
-            typeof latitude !==
-            "undefined"
-        ){
 
-            const map =
-                L.map("map")
-                .setView(
 
-                    [
-                        latitude,
-                        longitude
-                    ],
+// ==========================================================
+// AUTO REFRESH
+// ==========================================================
 
-                    10
-                );
+setInterval(() => {
 
-            L.tileLayer(
+    const form = document.querySelector("form");
 
-                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    const input = document.getElementById("cityInput");
 
-                {
+    if (form && input && input.value.trim() !== "") {
 
-                    attribution:
-                    "© OpenStreetMap"
-                }
+        console.log("Weather data auto-refresh ready.");
 
-            ).addTo(map);
-
-            L.marker(
-
-                [
-                    latitude,
-                    longitude
-                ]
-
-            ).addTo(map)
-
-            .bindPopup(
-                "📍 Weather Location"
-            )
-
-            .openPopup();
-        }
     }
-);
+
+}, 600000); // every 10 minutes
 
 
-// ==========================
-// CARD ANIMATIONS
-// ==========================
+// ==========================================================
+// PAGE LOADER
+// ==========================================================
 
-document.addEventListener(
+window.addEventListener("load", () => {
 
-    "DOMContentLoaded",
+    document.body.classList.add("page-loaded");
 
-    () => {
+});
 
-        const cards =
 
-        document.querySelectorAll(
+// ==========================================================
+// SMOOTH SCROLL LINKS
+// ==========================================================
 
-            ".forecast-card, \
-             .hour-card, \
-             .rain-card, \
-             .weather-card, \
-             .aqi-card"
-        );
+document.querySelectorAll('a[href^="#"]').forEach(link => {
 
-        cards.forEach(
-
-            (card,index)=>{
-
-                card.style.opacity =
-                    "0";
-
-                card.style.transform =
-                    "translateY(20px)";
-
-                setTimeout(()=>{
-
-                    card.style.transition =
-                        "0.6s ease";
-
-                    card.style.opacity =
-                        "1";
-
-                    card.style.transform =
-                        "translateY(0)";
-
-                },index*100);
-            }
-        );
-    }
-);
-// ==========================
-// PWA INSTALL BUTTON
-// ==========================
-
-let deferredPrompt;
-
-window.addEventListener(
-    "beforeinstallprompt",
-    (e) => {
+    link.addEventListener("click", function (e) {
 
         e.preventDefault();
 
-        deferredPrompt = e;
+        const target = document.querySelector(this.getAttribute("href"));
 
-        const installBtn =
-            document.getElementById(
-                "installBtn"
-            );
+        if (target) {
 
-        if (installBtn) {
+            target.scrollIntoView({
 
-            installBtn.style.display =
-                "inline-block";
+                behavior: "smooth"
+
+            });
+
         }
-    }
-);
 
-const installBtn =
-document.getElementById(
-    "installBtn"
-);
+    });
 
-if (installBtn) {
+});
 
-    installBtn.addEventListener(
-        "click",
 
-        async () => {
+// ==========================================================
+// SIMPLE WEATHER FACTS
+// ==========================================================
 
-            if (!deferredPrompt)
-                return;
+const weatherFacts = [
 
-            deferredPrompt.prompt();
+    "🌍 The highest temperature recorded on Earth is 56.7°C.",
 
-            await deferredPrompt.userChoice;
+    "☁ Clouds can weigh more than one million pounds.",
 
-            deferredPrompt = null;
-        }
+    "⚡ Lightning is five times hotter than the Sun's surface.",
+
+    "🌧 Raindrops are not actually tear-shaped.",
+
+    "❄ Every snowflake has a unique pattern."
+
+];
+
+function showWeatherFact() {
+
+    const box = document.getElementById("weather-fact");
+
+    if (!box) return;
+
+    const random = Math.floor(
+
+        Math.random() * weatherFacts.length
+
     );
+
+    box.innerHTML = weatherFacts[random];
+
 }
 
-
-// ==========================
-// FAVORITE CITY AUTO SAVE
-// ==========================
-
-window.addEventListener(
-    "load",
-    () => {
-
-        const cityHeading =
-
-        document.querySelector(
-            ".weather-card h2"
-        );
-
-        if (cityHeading) {
-
-            addFavorite(
-                cityHeading.innerText
-            );
-        }
-    }
-);
+window.addEventListener("load", showWeatherFact);
 
 
-// ==========================
-// RADAR ANIMATION
-// ==========================
+// ==========================================================
+// FINAL INITIALIZATION
+// ==========================================================
 
-window.addEventListener(
-    "load",
-    () => {
+console.log("========================================");
 
-        const radar =
+console.log(" Weather Forecast Pro V2.0 Loaded ");
 
-        document.querySelector(
-            ".radar-placeholder"
-        );
+console.log(" Developed by Arnav Mittal ");
 
-        if (radar) {
-
-            radar.animate(
-
-                [
-                    { opacity: 0.5 },
-                    { opacity: 1 },
-                    { opacity: 0.5 }
-                ],
-
-                {
-                    duration: 2500,
-                    iterations: Infinity
-                }
-            );
-        }
-    }
-);
-
-
-// ==========================
-// SMOOTH SCROLL
-// ==========================
-
-document.documentElement.style.scrollBehavior =
-"smooth";
-
-
-// ==========================
-// BUTTON HOVER EFFECTS
-// ==========================
-
-document.querySelectorAll(
-    "button"
-).forEach(
-
-    btn => {
-
-        btn.addEventListener(
-            "mouseenter",
-
-            () => {
-
-                btn.style.transition =
-                    ".3s";
-
-                btn.style.transform =
-                    "translateY(-3px)";
-            }
-        );
-
-        btn.addEventListener(
-            "mouseleave",
-
-            () => {
-
-                btn.style.transform =
-                    "translateY(0)";
-            }
-        );
-    }
-);
-
-
-// ==========================
-// PAGE FADE EFFECT
-// ==========================
-
-window.addEventListener(
-    "load",
-
-    () => {
-
-        document.body.style.opacity =
-            "0";
-
-        setTimeout(() => {
-
-            document.body.style.transition =
-                "opacity .8s";
-
-            document.body.style.opacity =
-                "1";
-
-        }, 100);
-    }
-);
+console.log("========================================");
