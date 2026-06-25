@@ -222,10 +222,10 @@ def home():
 
             if weather["humidity"] > 85:
                 alerts.append("💧 High Humidity Alert")
-
             if weather["visibility"] < 2:
                 alerts.append("🌫 Low Visibility Alert")
-                return render_template(
+
+    return render_template(
         "index.html",
         weather=weather,
         forecast=forecast,
@@ -238,7 +238,3 @@ def home():
         current_time=current_time,
         error=error
     )
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
