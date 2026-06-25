@@ -89,18 +89,17 @@ def home():
                 data["weather"][0]["icon"],
 
                 "sunrise":
-                datetime.fromtimestamp(
-                    data["sys"]["sunrise"]
-                ).strftime("%I:%M %p"),
+datetime.utcfromtimestamp(
+    data["sys"]["sunrise"] + data["timezone"]
+).strftime("%I:%M %p"),
 
-                "sunset":
-                datetime.fromtimestamp(
-                    data["sys"]["sunset"]
-                ).strftime("%I:%M %p"),
+"sunset":
+datetime.utcfromtimestamp(
+    data["sys"]["sunset"] + data["timezone"]
+).strftime("%I:%M %p"),
 
-                "lat":
-                lat,
-
+"lat":
+lat,
                 "lon":
                 lon
             }
